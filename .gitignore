@@ -1,0 +1,14 @@
+# python
+__pycache__/
+*.pyc
+*.egg-info/
+.venv/
+
+# working data (never publish): research stores, usage ledger, local agent config
+.research/
+knowledge-base/
+.token-usage.jsonl
+.claude/
+
+# bench outputs regenerated per run
+bench/artifacts/

@@ -1,0 +1,8 @@
+{"url": "https://www.usgs.gov/water-science-school/science/trends-water-use-united-states-1950-2015",
+ "from_run": "us-water-usage", "expect": "fail",
+ "planted": [
+   "2015 total withdrawals changed 322 -> 302 Bgal/d (two places)",
+   "water use peaked in 1980 -> 1975",
+   "electricity water use increase 400 -> 600 percent",
+   "fabricated: 'California alone accounted for 9 percent of total withdrawals in 2015' (not in source)"
+ ]}

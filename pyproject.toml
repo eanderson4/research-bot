@@ -1,0 +1,46 @@
+[project]
+name = "research-bot"
+version = "0.1.0"
+description = "Cheap-token deep research: Kagi/DDG search, escalating page fetch (Kagi Extract, Wayback), file-pair caching, worker-model summarization with receipts, adversarial verification, and a cross-tier token/cost report."
+readme = "README.md"
+license = { file = "LICENSE" }
+authors = [{ name = "Eric Anderson" }]
+requires-python = ">=3.10"
+keywords = ["research", "llm", "agents", "web-search", "fact-checking"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Environment :: Console",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+]
+dependencies = [
+    "requests>=2.31",
+    "pypdf>=4.0",
+    "openai>=1.30,<3",
+]
+
+[project.urls]
+Repository = "https://github.com/eanderson4/research-bot"
+Issues = "https://github.com/eanderson4/research-bot/issues"
+
+[project.scripts]
+research = "research_bot.cli:main"
+
+[dependency-groups]
+dev = ["pytest>=8.0", "ruff>=0.4"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["research_bot"]
+
+[tool.ruff]
+line-length = 110
+
+[tool.ruff.lint]
+select = ["E", "F", "W"]
+# E501: agent prompts and the serve.py HTML template legitimately run long
+ignore = ["E731", "E501"]

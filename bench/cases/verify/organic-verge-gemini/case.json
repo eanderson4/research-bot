@@ -1,0 +1,8 @@
+{"url": "https://www.theverge.com/report/763080/google-ai-gemini-water-energy-emissions-study",
+ "from_run": "cbs-ai-water-factcheck", "expect": "fail",
+ "note": "UNMODIFIED production worker notes (flash) containing organic errors found by the verifier on 2026-07-17",
+ "planted": [],
+ "organic": [
+   "'tip of the iceberg' quote misattributed to Ren; source attributes it to Alex de Vries-Gao",
+   "Jevons paradox observation attributed to de Vries-Gao; article does not attribute it to him"
+ ]}

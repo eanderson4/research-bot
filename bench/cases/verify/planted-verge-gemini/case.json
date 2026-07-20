@@ -1,0 +1,7 @@
+{"url": "https://www.theverge.com/report/763080/google-ai-gemini-water-energy-emissions-study",
+ "from_run": "cbs-ai-water-factcheck", "expect": "fail",
+ "planted": [
+   "per-prompt water 0.26 mL -> 0.35 mL (headline table row; 0.26 remains correct elsewhere)",
+   "electricity reduction 33x -> 23x",
+   "carbon emissions grew 11% -> 16% last year"
+ ]}
