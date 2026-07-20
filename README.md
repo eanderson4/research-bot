@@ -72,6 +72,12 @@ Swap any of them without code changes:
 [`bench/`](bench/README.md) with cases frozen from real missions — run the
 bench before promoting a model or prompt change to a role's default.
 
+The bench measures task quality per role. Provider *mechanics* — TTFT,
+sustained tok/s, cost per probe — are the companion repo
+[llm-meter](https://github.com/eanderson4/llm-meter); the two share result-field
+conventions, and CI cross-checks that list rates and the schema haven't
+drifted (`tests/test_meter_compat.py`).
+
 ## Verification gate
 
 `research verify notes.md` re-reads each cited source from the page cache

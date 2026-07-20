@@ -28,7 +28,13 @@ Issues = "https://github.com/eanderson4/research-bot/issues"
 research = "research_bot.cli:main"
 
 [dependency-groups]
-dev = ["pytest>=8.0", "ruff>=0.4"]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.4",
+    # companion repo: provider-mechanics probes + the shared result schema.
+    # Dev-only drift guard (tests/test_meter_compat.py); not a runtime dep.
+    "llm-meter @ git+https://github.com/eanderson4/llm-meter",
+]
 
 [build-system]
 requires = ["hatchling"]

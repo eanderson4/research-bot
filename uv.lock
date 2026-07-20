@@ -306,6 +306,14 @@ wheels = [
 ]
 
 [[package]]
+name = "llm-meter"
+version = "0.1.0"
+source = { git = "https://github.com/eanderson4/llm-meter#043691dfbf2905b65bda94ac45d39aed8bab8665" }
+dependencies = [
+    { name = "openai" },
+]
+
+[[package]]
 name = "openai"
 version = "2.46.0"
 source = { registry = "https://pypi.org/simple" }
@@ -539,6 +547,7 @@ dependencies = [
 
 [package.dev-dependencies]
 dev = [
+    { name = "llm-meter" },
     { name = "pytest" },
     { name = "ruff" },
 ]
@@ -552,6 +561,7 @@ requires-dist = [
 
 [package.metadata.requires-dev]
 dev = [
+    { name = "llm-meter", git = "https://github.com/eanderson4/llm-meter" },
     { name = "pytest", specifier = ">=8.0" },
     { name = "ruff", specifier = ">=0.4" },
 ]
