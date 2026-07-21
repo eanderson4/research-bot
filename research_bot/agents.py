@@ -89,6 +89,7 @@ DEFAULTS = {
         contract="markdown notes ending with a RELEVANT LEADS: block"),
     "verifier": AgentSpec(
         role="verifier", system=VERIFIER_SYSTEM, model="pro", temperature=0.0,
+        max_tokens=16384,
         contract="CLAIM/VERDICT/EVIDENCE lines + final OVERALL: PASS|FAIL line"),
     "merger": AgentSpec(
         role="merger", system=MERGER_SYSTEM, model="flash",
@@ -97,7 +98,7 @@ DEFAULTS = {
         role="planner", system=PLANNER_SYSTEM, model="glm", max_tokens=16384,
         contract="mission plan: angles, queries, dispatch, verification, stop tests"),
     "judge": AgentSpec(
-        role="judge", system=JUDGE_SYSTEM, model="pro", temperature=0.0, max_tokens=2048,
+        role="judge", system=JUDGE_SYSTEM, model="pro", temperature=0.0, max_tokens=8192,
         contract='JSON: {"scores": {...}, "overall": n, "rationale": "..."}'),
 }
 
