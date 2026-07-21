@@ -31,7 +31,13 @@ def resolve_model(alias: str):
         if "openrouter_api_key" in ks:
             return "z-ai/glm-5.2", "https://openrouter.ai/api/v1", "openrouter_api_key"
         raise ConfigError("no GLM key. Set ZAI_API_KEY (api.z.ai) or OPENROUTER_API_KEY.")
-    raise ConfigError(f"unknown model alias '{alias}' (use flash|pro|glm)")
+    if alias in ("k3", "kimi-k3"):
+        return "kimi-k3", "https://api.moonshot.ai/v1", "kimi_api_key"
+    if alias in ("fable", "claude-fable-5"):
+        return "claude-fable-5", "https://api.anthropic.com/v1", "anthropic_api_key"
+    if alias in ("sol", "gpt-5.6-sol"):
+        return "gpt-5.6-sol", "https://api.openai.com/v1", "openai_api_key"
+    raise ConfigError(f"unknown model alias '{alias}' (use flash|pro|glm|k3|fable|sol)")
 
 
 def call(model_alias, messages, max_tokens=8192, temperature=0.3):

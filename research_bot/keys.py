@@ -24,6 +24,9 @@ ENV_KEY_MAP = {
     "zai_api_key": ["ZAI_API_KEY", "Z_AI_API_KEY", "GLM_API_KEY"],
     "openrouter_api_key": ["OPENROUTER_API_KEY"],
     "kagi_api_key": ["KAGI_API_KEY"],
+    "kimi_api_key": ["KIMI_API_KEY", "MOONSHOT_API_KEY"],
+    "openai_api_key": ["OPENAI_API_KEY"],
+    "anthropic_api_key": ["ANTHROPIC_API_KEY"],
 }
 
 

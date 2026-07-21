@@ -12,6 +12,9 @@ RATES = {
     "deepseek-v4-pro": (0.435, 0.87, 0.003625),
     "glm-5.2": (1.40, 4.40, 0.26),
     "z-ai/glm-5.2": (1.40, 4.40, 0.26),
+    "kimi-k3": (3.0, 15.0, 0.30),
+    "claude-fable-5": (10.0, 50.0, 1.00),
+    "gpt-5.6-sol": (5.0, 30.0, 0.50),
 }
 
 # Anthropic list rates for `research report --anthropic` (input, output, cached-input)
