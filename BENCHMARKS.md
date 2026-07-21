@@ -1,5 +1,11 @@
 # Benchmarks
 
+Scope: this file only carries **task-quality** results — prompts scored
+against expected results we create and manage (hand-planted errors, judge
+rubrics, frozen real-mission cases). Generic provider mechanics (token
+rate, TTFT, cost per probe) live in
+[llm-meter's BENCHMARKS.md](https://github.com/eanderson4/llm-meter/blob/main/BENCHMARKS.md).
+
 Dated snapshots of `research bench` across worker models. Cases are frozen
 snapshots from real missions (see [`bench/README.md`](bench/README.md));
 raw per-run data is [`bench/results.jsonl`](bench/results.jsonl). Reproduce
