@@ -32,7 +32,9 @@ def resolve_model(alias: str):
             return "z-ai/glm-5.2", "https://openrouter.ai/api/v1", "openrouter_api_key"
         raise ConfigError("no GLM key. Set ZAI_API_KEY (api.z.ai) or OPENROUTER_API_KEY.")
     if alias in ("k3", "kimi-k3"):
-        return "kimi-k3", "https://api.moonshot.ai/v1", "kimi_api_key"
+        # Kimi for Coding keys use the coding endpoint, not api.moonshot.ai.
+        base = os.getenv("KIMI_BASE_URL", "https://api.kimi.com/coding/v1")
+        return "kimi-k3", base, "kimi_api_key"
     if alias in ("fable", "claude-fable-5"):
         return "claude-fable-5", "https://api.anthropic.com/v1", "anthropic_api_key"
     if alias in ("sol", "gpt-5.6-sol"):
@@ -50,12 +52,12 @@ def call(model_alias, messages, max_tokens=8192, temperature=0.3):
     # Explicit timeout: a wedged endpoint should fail a worker in minutes, not
     # hang it for the SDK's 10-minute default.
     client = OpenAI(api_key=ks[key_name], base_url=base_url, timeout=180.0, max_retries=2)
-    # OpenAI 5.x rejects max_tokens (wants max_completion_tokens); OpenAI 5.x
-    # and Anthropic's newer models reject temperature. Send defaults there.
+    # OpenAI 5.x rejects max_tokens (wants max_completion_tokens); reasoning
+    # models (OpenAI 5.x, Anthropic newer, Kimi k3) reject temperature.
     kwargs = {"model": model_id, "messages": messages}
     if "api.openai.com" in base_url:
         kwargs["max_completion_tokens"] = max_tokens
-    elif "api.anthropic.com" in base_url:
+    elif "api.anthropic.com" in base_url or "api.kimi.com" in base_url:
         kwargs["max_tokens"] = max_tokens
     else:
         kwargs["max_tokens"] = max_tokens
