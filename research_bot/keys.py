@@ -26,7 +26,8 @@ ENV_KEY_MAP = {
     "kagi_api_key": ["KAGI_API_KEY"],
     "kimi_api_key": ["KIMI_API_KEY", "MOONSHOT_API_KEY"],
     "openai_api_key": ["OPENAI_API_KEY"],
-    "anthropic_api_key": ["ANTHROPIC_API_KEY"],
+    "anthropic_api_key": ["ANTHROPIC_API_KEY", "ANTHROPIC_API_KEY_RB",
+                          "ANTHROPIC_API_KEY_ORIG", "ANTHROPIC_API_KEY_PERSONAL"],
 }
 
 

@@ -94,7 +94,7 @@ DEFAULTS = {
         role="merger", system=MERGER_SYSTEM, model="flash",
         contract="deduplicated distillate, [CONFLICT]/[SINGLE-SOURCE] flags, RELEVANT LEADS:"),
     "planner": AgentSpec(
-        role="planner", system=PLANNER_SYSTEM, model="glm", max_tokens=4096,
+        role="planner", system=PLANNER_SYSTEM, model="glm", max_tokens=16384,
         contract="mission plan: angles, queries, dispatch, verification, stop tests"),
     "judge": AgentSpec(
         role="judge", system=JUDGE_SYSTEM, model="pro", temperature=0.0, max_tokens=2048,
