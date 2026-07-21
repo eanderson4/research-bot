@@ -1,0 +1,3 @@
+{"url": "https://www.energy.ca.gov/news/2025-11/californias-battery-storage-fleet-continues-record-growth-strengthening-grid",
+ "from_run": "forestry-business-plan", "expect": "pass",
+ "note": "real worker notes, unmodified; a correct verifier should PASS them"}
