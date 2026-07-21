@@ -78,6 +78,10 @@ sustained tok/s, cost per probe — are the companion repo
 conventions, and CI cross-checks that list rates and the schema haven't
 drifted (`tests/test_meter_compat.py`).
 
+A dated snapshot of bench results across worker models lives in
+[BENCHMARKS.md](BENCHMARKS.md); raw per-run data is in
+[`bench/results.jsonl`](bench/results.jsonl).
+
 ## Verification gate
 
 `research verify notes.md` re-reads each cited source from the page cache
