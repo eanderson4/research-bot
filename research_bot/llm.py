@@ -50,11 +50,16 @@ def call(model_alias, messages, max_tokens=8192, temperature=0.3):
     # Explicit timeout: a wedged endpoint should fail a worker in minutes, not
     # hang it for the SDK's 10-minute default.
     client = OpenAI(api_key=ks[key_name], base_url=base_url, timeout=180.0, max_retries=2)
+    # OpenAI's 5.x models reject max_tokens/temperature; they want
+    # max_completion_tokens and default sampling.
+    kwargs = {"model": model_id, "messages": messages}
+    if "api.openai.com" in base_url:
+        kwargs["max_completion_tokens"] = max_tokens
+    else:
+        kwargs["max_tokens"] = max_tokens
+        kwargs["temperature"] = temperature
     t0 = time.monotonic()
-    resp = client.chat.completions.create(
-        model=model_id, messages=messages,
-        max_tokens=max_tokens, temperature=temperature,
-    )
+    resp = client.chat.completions.create(**kwargs)
     elapsed = time.monotonic() - t0
     if not resp.choices or resp.choices[0].message.content is None:
         raise RuntimeError(f"{model_id}: empty completion (no choices/content in response)")
