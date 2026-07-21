@@ -1,0 +1,7 @@
+{"url": "https://kathylovesphysics.com/",
+ "from_run": "mathvsvibes", "expect": "fail",
+ "note": "UNMODIFIED production worker notes containing an organic error found by the verifier during the mathvsvibes run",
+ "planted": [],
+ "organic": [
+   "notes claim 'the site does not provide purchase links or ISBN' for the book; the source includes a 'BUY THIS BOOK!' purchase link (the ISBN part is accurate)"
+ ]}

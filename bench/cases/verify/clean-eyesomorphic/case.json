@@ -1,0 +1,3 @@
+{"url": "https://eyesomorphic.com/",
+ "from_run": "mathvsvibes", "expect": "pass",
+ "note": "real worker notes, unmodified; a correct verifier should PASS them"}
