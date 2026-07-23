@@ -24,9 +24,18 @@ comparison basis on purpose.
 
 ## The suites
 
-Each suite benches one role from the three-tier pattern, on inputs frozen
-from real missions:
+Each suite benches one step of the pipeline, on inputs frozen
+from real missions. Extraction and summarization are benched as the
+separate steps they are:
 
+- **`extract` — can this model pull the facts?** The benched model plays
+  extraction worker on one cached page. Scored **deterministically**
+  against a hand-authored `facts.json`: 13–14 must-capture items per case
+  (exact figures, dates, names, plus anti-hallucination checks — pass =
+  you didn't invent a price the page never states). Score = 10 × recall.
+  No judge, no LLM-grading-LLM. This is the step cheap models are
+  *supposed* to be good enough for — the suite that proves or punctures
+  it.
 - **`verify` — can this model fact-check?** The benched model plays
   verifier: it gets research notes plus the source they cite, and must
   pass clean notes and fail dirty ones. Ground truth is hard, not judged:
@@ -37,12 +46,12 @@ from real missions:
   one happened; the per-case rows in `results.jsonl` show it (`flagged`
   on a `clean-*` case = false positive).
 - **`summarize` — can this model compress a page without inventing
-  things?** The benched model plays worker: summarize one cached page
-  into notes. Two independent scores: an LLM judge rates coverage /
-  precision / leads (0–10, taste), and the adversarial verifier re-checks
-  every claim against the source (`vpass` = survived, facts). The gap
-  between the two is the interesting signal — models can write summaries
-  a judge loves that don't survive fact-checking.
+  things?** Same worker call as `extract`, but scored the holistic way:
+  an LLM judge rates coverage / precision / leads (0–10, taste), and the
+  adversarial verifier re-checks every claim against the source (`vpass`
+  = survived, facts). The gap between the two is the interesting signal —
+  models can write summaries a judge loves that don't survive
+  fact-checking.
 - **`plan` — can this model orchestrate?** The benched model plays
   planner: given a real mission's intent brief, produce an executable
   research plan — concrete queries, worker dispatches, receipts
@@ -54,11 +63,17 @@ The judge and the summarize-suite verifier always run on registry
 defaults (currently `pro`), independent of the model being benched — so
 worker-model comparisons stay apples-to-apples.
 
-## 2026-07-21 — six-model sweep (19 cases)
+## 2026-07-21 — six-model sweep (23 cases)
 
 ```
 suite      model     tag         n  score  vpass   $/case    sec  errs
 ----------------------------------------------------------------------
+extract    fable     -           4    9.8      -   0.1499     26     0
+extract    flash     -           4    9.7      -   0.0005     18     0
+extract    glm       -           4    9.4      -   0.0117     35     0
+extract    k3        -           4    9.7      -   0.0263     41     0
+extract    pro       -           4    9.4      -   0.0018     21     0
+extract    sol       -           0      -      -        -      -     -
 plan       fable     -           2    9.2      -   0.1992     50     0
 plan       flash     -           2    8.5      -   0.0011     32     0
 plan       glm       -           2    7.0      -   0.0126     48     0
@@ -87,6 +102,17 @@ not yet captured.
 
 Reading this table:
 
+- **Extraction recall is commoditized — the cheap-tier hypothesis
+  holds.** On deterministic fact-recall, `flash` scores 9.7 at
+  **$0.0005/case** — statistically indistinguishable from `fable`'s 9.8
+  at 300× the price. Everyone lands 9.4–9.8. This is the empirical case
+  for running the worker tier on cheap models. (`sol`'s extract row is
+  missing: OpenAI quota ran out mid-sweep; will backfill.)
+- **Where extraction still separates: buried requirements.** The one
+  discriminative fact in the suite is a two-year monitoring obligation
+  deep in a 23KB grant RFA — 5 of 6 models missed it; only `fable`
+  caught it. Volume facts are free; needle-in-document recall is what's
+  left to compete on.
 - **No model wins everywhere — the roles genuinely separate.**
   - *Verifier:* `pro` is the only perfect score (10/10 — no missed plants,
     no false positives) at $0.005/case. Everyone else false-alarmed on

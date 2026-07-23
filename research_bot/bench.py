@@ -12,6 +12,10 @@ Suites (cases live in bench/cases/<suite>/<case>/):
   plan       brief.md from a real mission -> planner writes the mission plan.
              Judge scores coverage/operationality/receipts-discipline against
              the brief (and reference-plan.md from the real run, if present).
+  extract    source.md + facts.json (hand-verified key facts as regex sets).
+             Same extraction agent as summarize, but scored deterministically:
+             a fact passes if all its `must` regexes match the output and no
+             `must_not` regex does. Recall benchmark; no LLM judge, no verifier.
 
 Run a model matrix and append every result to bench/results.jsonl:
   research bench run --suite summarize --model flash,pro,glm
@@ -164,7 +168,45 @@ def run_plan_case(case_dir, model):
     }
 
 
-RUNNERS = {"summarize": run_summarize_case, "verify": run_verify_case, "plan": run_plan_case}
+def run_extract_case(case_dir, model):
+    meta = json.loads((case_dir / "case.json").read_text())
+    source = (case_dir / "source.md").read_text()
+    url = meta.get("url", "unknown")
+    work = agents.run("summarizer", f"SOURCE URL: {url}\n\nDOCUMENT TEXT:\n{source}", model=model)
+    save_artifact("extract", case_dir.name, model, "notes", work["text"])
+    facts = json.loads((case_dir / "facts.json").read_text())["facts"]
+    flags = re.IGNORECASE | re.DOTALL
+    text = work["text"]
+    passed, missed = 0, []
+    audit = [f"# extract facts audit: {case_dir.name} @ {model}", ""]
+    for f in facts:
+        must = f.get("must", [])
+        must_not = f.get("must_not", [])
+        missing = [p for p in must if not re.search(p, text, flags)]
+        hits = [p for p in must_not if re.search(p, text, flags)]
+        ok = not missing and not hits
+        passed += ok
+        if not ok:
+            missed.append(f["id"])
+        audit.append(f"{'PASS' if ok else 'FAIL'} {f['id']}")
+        for p in missing:
+            audit.append(f"  must MISSING: /{p}/")
+        for p in hits:
+            audit.append(f"  must_not HIT: /{p}/")
+    total = len(facts)
+    score = round(10 * passed / total, 1) if total else None
+    audit.insert(1, f"# passed {passed}/{total} score {score}")
+    save_artifact("extract", case_dir.name, model, "facts", "\n".join(audit))
+    return {
+        "score": score,
+        "facts_total": total, "facts_passed": passed, "missed": missed,
+        "tokens_in": work["in"], "tokens_out": work["out"], "seconds": work["seconds"],
+        "cost_usd": cost_of(work),
+    }
+
+
+RUNNERS = {"summarize": run_summarize_case, "verify": run_verify_case, "plan": run_plan_case,
+           "extract": run_extract_case}
 
 
 def cmd_run(args):

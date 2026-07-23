@@ -8,6 +8,7 @@ workload: gov stats pages, news articles, corporate blogs, org reports.
 
 | suite | benched role | input | ground truth / scoring |
 |-------|-------------|-------|------------------------|
+| `extract` | extraction worker | `source.md` (cached page text) | deterministic recall vs hand-authored `facts.json` (13–14 must-capture items + anti-hallucination checks per case). Score = 10 × recall. No judge, no LLM-grading-LLM. |
 | `summarize` | summarizer | `source.md` (cached page text) | adversarial verify vs source (invented/distorted facts fail) + judge 0–10 on coverage/precision/leads |
 | `verify` | verifier | `notes.md` + `source.md` | `case.json` `expect: pass\|fail`; `planted-*` cases carry hand-planted errors listed in `planted`. Score 10 = correct verdict, 0 = wrong. No LLM-judge circularity. |
 | `plan` | planner (orchestrator stand-in) | `brief.md` from a real mission | judge 0–10 on coverage/operationality/receipts-discipline/verification, with the real mission's `reference-plan.md` as baseline |

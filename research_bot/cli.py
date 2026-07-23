@@ -203,7 +203,7 @@ def main():
     b = sub.add_parser("bench", help="run/report agent benchmarks (cases from real runs, see bench/)")
     bsub = b.add_subparsers(dest="bench_cmd", required=True)
     br = bsub.add_parser("run", help="run a suite across one or more models")
-    br.add_argument("--suite", required=True, choices=["summarize", "verify", "plan"])
+    br.add_argument("--suite", required=True, choices=["summarize", "verify", "plan", "extract"])
     br.add_argument("--model", required=True, help="comma-separated model aliases, e.g. flash,pro,glm")
     br.add_argument("--cases", default=None, help="comma-separated case names (default: all)")
     br.add_argument("--tag", default=None, help="label this run (e.g. prompt-v2)")
