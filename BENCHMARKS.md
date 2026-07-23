@@ -22,6 +22,38 @@ Model aliases: `flash` = deepseek-v4-flash, `pro` = deepseek-v4-pro,
 models accessed via coding-plan endpoints (k3, glm) — list price is the
 comparison basis on purpose.
 
+## The suites
+
+Each suite benches one role from the three-tier pattern, on inputs frozen
+from real missions:
+
+- **`verify` — can this model fact-check?** The benched model plays
+  verifier: it gets research notes plus the source they cite, and must
+  pass clean notes and fail dirty ones. Ground truth is hard, not judged:
+  `planted-*` cases contain hand-planted errors listed in the case file
+  (score 10 = correct verdict). Two failure modes matter separately —
+  *missing* a real error lets bad facts through, and *false-alarming* on
+  clean notes wastes human review. The table's single score hides which
+  one happened; the per-case rows in `results.jsonl` show it (`flagged`
+  on a `clean-*` case = false positive).
+- **`summarize` — can this model compress a page without inventing
+  things?** The benched model plays worker: summarize one cached page
+  into notes. Two independent scores: an LLM judge rates coverage /
+  precision / leads (0–10, taste), and the adversarial verifier re-checks
+  every claim against the source (`vpass` = survived, facts). The gap
+  between the two is the interesting signal — models can write summaries
+  a judge loves that don't survive fact-checking.
+- **`plan` — can this model orchestrate?** The benched model plays
+  planner: given a real mission's intent brief, produce an executable
+  research plan — concrete queries, worker dispatches, receipts
+  discipline, verification gates. Judged 0–10 against the real mission's
+  own plan as a baseline (not a ceiling). Thinnest suite; treat it as
+  indicative.
+
+The judge and the summarize-suite verifier always run on registry
+defaults (currently `pro`), independent of the model being benched — so
+worker-model comparisons stay apples-to-apples.
+
 ## 2026-07-21 — six-model sweep (19 cases)
 
 ```
