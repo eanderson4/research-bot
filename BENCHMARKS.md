@@ -24,10 +24,25 @@ comparison basis on purpose.
 
 ## The suites
 
-Each suite benches one step of the pipeline, on inputs frozen
-from real missions. Extraction and summarization are benched as the
-separate steps they are:
+The bench mirrors the pipeline — each suite attaches to one stage:
 
+```mermaid
+flowchart TD
+    BRIEF["INTENT BRIEF"] --> PLAN["PLAN — orchestrator<br/>queries, worker dispatches, gates"]
+    PLAN --> EXTRACT["EXTRACT — one worker per page<br/>facts, quotes, leads"]
+    EXTRACT --> VERIFY["VERIFY — adversarial gate<br/>notes vs source, PASS/FAIL"]
+    VERIFY --> SYNTH["SYNTHESIZE — verified facts → brief"]
+    SYNTH --> OUT["DELIVERABLE"]
+```
+
+In pipeline order:
+
+- **`plan` — can this model orchestrate?** The entry point. The benched
+  model plays planner: given a real mission's intent brief, produce an
+  executable research plan — concrete queries, worker dispatches,
+  receipts discipline, verification gates. Judged 0–10 against the real
+  mission's own plan as a baseline (not a ceiling). Thinnest suite;
+  treat it as indicative.
 - **`extract` — can this model pull the facts?** The benched model plays
   extraction worker on one cached page. Scored **deterministically**
   against a hand-authored `facts.json`: 13–14 must-capture items per case
@@ -36,28 +51,23 @@ separate steps they are:
   No judge, no LLM-grading-LLM. This is the step cheap models are
   *supposed* to be good enough for — the suite that proves or punctures
   it.
-- **`verify` — can this model fact-check?** The benched model plays
-  verifier: it gets research notes plus the source they cite, and must
-  pass clean notes and fail dirty ones. Ground truth is hard, not judged:
-  `planted-*` cases contain hand-planted errors listed in the case file
-  (score 10 = correct verdict). Two failure modes matter separately —
-  *missing* a real error lets bad facts through, and *false-alarming* on
-  clean notes wastes human review. The table's single score hides which
-  one happened; the per-case rows in `results.jsonl` show it (`flagged`
-  on a `clean-*` case = false positive).
-- **`summarize` — can this model compress a page without inventing
-  things?** Same worker call as `extract`, but scored the holistic way:
-  an LLM judge rates coverage / precision / leads (0–10, taste), and the
-  adversarial verifier re-checks every claim against the source (`vpass`
-  = survived, facts). The gap between the two is the interesting signal —
-  models can write summaries a judge loves that don't survive
-  fact-checking.
-- **`plan` — can this model orchestrate?** The benched model plays
-  planner: given a real mission's intent brief, produce an executable
-  research plan — concrete queries, worker dispatches, receipts
-  discipline, verification gates. Judged 0–10 against the real mission's
-  own plan as a baseline (not a ceiling). Thinnest suite; treat it as
-  indicative.
+- **`verify` — can this model fact-check?** The gate: only verified
+  facts reach the deliverable. The benched model gets research notes
+  plus the source they cite, and must pass clean notes and fail dirty
+  ones. Ground truth is hard, not judged: `planted-*` cases contain
+  hand-planted errors listed in the case file (score 10 = correct
+  verdict). Two failure modes matter separately — *missing* a real error
+  lets bad facts through, and *false-alarming* on clean notes wastes
+  human review. The table's single score hides which one happened; the
+  per-case rows in `results.jsonl` show it (`flagged` on a `clean-*`
+  case = false positive).
+- **`summarize` — can this model turn facts into a brief?** The
+  synthesis step: compress extracted facts into notes a deliverable can
+  use. Two independent scores: an LLM judge rates coverage / precision /
+  leads (0–10, taste), and the adversarial verifier re-checks every
+  claim against the source (`vpass` = survived, facts). The gap between
+  the two is the interesting signal — models can write summaries a judge
+  loves that don't survive fact-checking.
 
 The judge and the summarize-suite verifier always run on registry
 defaults (currently `pro`), independent of the model being benched — so
@@ -68,30 +78,30 @@ worker-model comparisons stay apples-to-apples.
 ```
 suite      model     tag         n  score  vpass   $/case    sec  errs
 ----------------------------------------------------------------------
-extract    fable     -           4    9.8      -   0.1499     26     0
-extract    flash     -           4    9.7      -   0.0005     18     0
-extract    glm       -           4    9.4      -   0.0117     35     0
-extract    k3        -           4    9.7      -   0.0263     41     0
-extract    pro       -           4    9.4      -   0.0018     21     0
-extract    sol       -           0      -      -        -      -     -
 plan       fable     -           2    9.2      -   0.1992     50     0
 plan       flash     -           2    8.5      -   0.0011     32     0
 plan       glm       -           2    7.0      -   0.0126     48     0
 plan       k3        -           2    8.0      -   0.0384     65     0
 plan       pro       -           2    8.0      -   0.0038     79     0
 plan       sol       -           2   10.0      -   0.1897    109     0
-summarize  fable     -           9    9.0    9/9   0.2640     38     0
-summarize  flash     -           9    7.9    3/9   0.0016     20     0
-summarize  glm       -           9    9.7    3/9   0.0199     32     0
-summarize  k3        -           9    9.4    7/9   0.0345     46     0
-summarize  pro       -           9    8.7    5/9   0.0054     41     0
-summarize  sol       -           9    9.7    4/9   0.1245     40     0
+extract    fable     -           4    9.8      -   0.1499     26     0
+extract    flash     -           4    9.7      -   0.0005     18     0
+extract    glm       -           4    9.4      -   0.0117     35     0
+extract    k3        -           4    9.7      -   0.0263     41     0
+extract    pro       -           4    9.4      -   0.0018     21     0
+extract    sol       -           0      -      -        -      -     -
 verify     fable     -           8    8.8      -   0.2309     48     0
 verify     flash     -           8    8.8      -   0.0013     37     0
 verify     glm       -           8    8.8      -   0.0192     40     0
 verify     k3        -           8    7.5      -   0.0428     48     0
 verify     pro       -           8   10.0      -   0.0052     46     0
 verify     sol       -           8    6.2      -   0.1394     57     0
+summarize  fable     -           9    9.0    9/9   0.2640     38     0
+summarize  flash     -           9    7.9    3/9   0.0016     20     0
+summarize  glm       -           9    9.7    3/9   0.0199     32     0
+summarize  k3        -           9    9.4    7/9   0.0345     46     0
+summarize  pro       -           9    8.7    5/9   0.0054     41     0
+summarize  sol       -           9    9.7    4/9   0.1245     40     0
 ```
 
 `score`: judge 0–10; on `verify` it's 10 = correct verdict against hard
