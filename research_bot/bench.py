@@ -1,10 +1,11 @@
 """Benchmarks for the agent roles, built from real mission data.
 
 Suites (cases live in bench/cases/<suite>/<case>/):
-  summarize  source.md (cached page text from a real run) -> summarizer notes.
-             Scored two ways: adversarial verify against the source (did it
-             invent or distort anything?) and a judge score for coverage/
-             precision/leads.
+  summarize  facts.md (reference extraction of source.md) -> synthesis brief.
+             The benched model turns verified facts into the dense notes an
+             orchestrator wants; it never sees the raw page. Scored two ways:
+             adversarial verify against source.md (faithfulness-in-transformation)
+             and a judge score for coverage/precision/leads.
   verify     notes.md + source.md with a known ground truth (case.json says
              expect: pass|fail; fail cases have hand-planted errors listed in
              `planted`). The benched model IS the verifier; score is whether
@@ -98,19 +99,33 @@ def record(rec):
 
 # ---------------------------------------------------------------- suites
 
+# Task framing for the summarize suite: the benched model synthesizes a brief
+# from a reference extraction (facts.md), it never sees the raw page.
+SUMMARIZE_TASK = (
+    "You are given extracted, source-attributed facts about a page (not the page "
+    "itself). Write the dense notes brief an orchestrator would want: organized, "
+    "faithful to the facts, no invention."
+)
+
 
 def run_summarize_case(case_dir, model):
     meta = json.loads((case_dir / "case.json").read_text())
     source = (case_dir / "source.md").read_text()
+    facts_path = case_dir / "facts.md"
+    if not facts_path.exists():
+        raise FileNotFoundError(
+            f"{facts_path} missing — summarize cases need a reference extraction "
+            f"(run the summarizer agent on source.md and save it as facts.md)")
+    facts = facts_path.read_text()
     url = meta.get("url", "unknown")
-    work = agents.run("summarizer", f"SOURCE URL: {url}\n\nDOCUMENT TEXT:\n{source}", model=model)
+    work = agents.run("summarizer", f"{SUMMARIZE_TASK}\n\nSOURCE URL: {url}\n\nEXTRACTED FACTS:\n{facts}", model=model)
     save_artifact("summarize", case_dir.name, model, "notes", work["text"])
     ver = verify.verify_text(work["text"], source, url)
     save_artifact("summarize", case_dir.name, model, "verdict", ver["text"])
     overall = ver["overall"] or {"passed": False, "supported": 0, "distorted": 0, "unsupported": 0}
     checked = overall["supported"] + overall["distorted"] + overall["unsupported"]
     jparsed, jres = judge(
-        "TASK: score these research notes extracted from the source document.\n"
+        "TASK: score this synthesis of extracted facts about the source document.\n"
         "Dimensions: coverage (key facts of the source captured), precision "
         "(figures exact, nothing invented), leads (useful RELEVANT LEADS block).\n\n"
         f"=== SOURCE ===\n{source[:60000]}\n\n=== CANDIDATE NOTES ===\n{work['text']}")

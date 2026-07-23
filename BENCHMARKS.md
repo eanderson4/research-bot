@@ -42,7 +42,10 @@ In pipeline order:
   executable research plan — concrete queries, worker dispatches,
   receipts discipline, verification gates. Judged 0–10 against the real
   mission's own plan as a baseline (not a ceiling). Thinnest suite;
-  treat it as indicative.
+  treat it as indicative. Caveat: real orchestration is *iterative* —
+  clarify the brief with the architect, run orientation queries, dispatch
+  a wave of workers, read the summaries, then dispatch the next wave.
+  This suite benches only the first move, not the loop.
 - **`extract` — can this model pull the facts?** The benched model plays
   extraction worker on one cached page. Scored **deterministically**
   against a hand-authored `facts.json`: 13–14 must-capture items per case
@@ -96,12 +99,12 @@ verify     glm       -           8    8.8      -   0.0192     40     0
 verify     k3        -           8    7.5      -   0.0428     48     0
 verify     pro       -           8   10.0      -   0.0052     46     0
 verify     sol       -           8    6.2      -   0.1394     57     0
-summarize  fable     -           9    9.0    9/9   0.2640     38     0
-summarize  flash     -           9    7.9    3/9   0.0016     20     0
-summarize  glm       -           9    9.7    3/9   0.0199     32     0
-summarize  k3        -           9    9.4    7/9   0.0345     46     0
-summarize  pro       -           9    8.7    5/9   0.0054     41     0
-summarize  sol       -           9    9.7    4/9   0.1245     40     0
+summarize  fable     -           9    9.4    6/9   0.1635     27     0
+summarize  flash     -           9    8.9    4/9   0.0006     12     0
+summarize  glm       -           9    8.6    6/9   0.0092     36     0
+summarize  k3        -           9    8.7    6/9   0.0264     47     0
+summarize  pro       -           9    9.1    5/9   0.0022     27     0
+summarize  sol       -           0      -      -        -      -     -
 ```
 
 `score`: judge 0–10; on `verify` it's 10 = correct verdict against hard
@@ -128,12 +131,11 @@ Reading this table:
     no false positives) at $0.005/case. Everyone else false-alarmed on
     clean notes at least once; `sol` did it on 3 of 4 clean cases (6.2),
     which would bury a human reviewer in bogus flags.
-  - *Summarizer:* `fable` is the quality ceiling — 9.0 judged and **9/9
-    summaries survived adversarial fact-checking**, the only clean sheet.
-    `k3` is the value pick of the premiums: 9.4 judged, 7/9 survived,
-    at an eighth of fable's price. `glm` and `sol` tie for the judge's
-    favor (9.7) but only 3/9 and 4/9 of their summaries survive —
-    fluent and supported are different properties.
+  - *Summarizer (synthesis):* `fable` leads on judge score (9.4) with
+    6/9 verification survival; the pack is tight (8.6–9.4 judged, 4–6/9
+    survived). Note this suite now feeds models a reference extraction
+    (`facts.md`), not the raw page — scores are not comparable with the
+    earlier raw-source sweeps, and `sol`'s row is pending OpenAI quota.
   - *Planner:* `sol` 10/10 — but n=2 cases, so treat the whole suite as
     indicative, not ranked.
 - **The cheap tier holds up embarrassingly well.** `flash` (deepseek

@@ -11,7 +11,7 @@ workload: gov stats pages, news articles, corporate blogs, org reports.
 | `plan` | planner (orchestrator stand-in) | `brief.md` from a real mission | judge 0–10 on coverage/operationality/receipts-discipline/verification, with the real mission's `reference-plan.md` as baseline |
 | `extract` | extraction worker | `source.md` (cached page text) | deterministic recall vs hand-authored `facts.json` (13–14 must-capture items + anti-hallucination checks per case). Score = 10 × recall. No judge, no LLM-grading-LLM. |
 | `verify` | verifier | `notes.md` + `source.md` | `case.json` `expect: pass\|fail`; `planted-*` cases carry hand-planted errors listed in `planted`. Score 10 = correct verdict, 0 = wrong. No LLM-judge circularity. |
-| `summarize` | summarizer | `source.md` (cached page text) | adversarial verify vs source (invented/distorted facts fail) + judge 0–10 on coverage/precision/leads |
+| `summarize` | summarizer (synthesis) | `facts.md` (reference extraction of the page) | adversarial verify vs `source.md` (invented/distorted facts fail) + judge 0–10 on coverage/precision/leads (judge sees `source.md` as reference) |
 
 ## Usage
 
@@ -31,7 +31,9 @@ being benched — keep them fixed when comparing worker models.
 ## Adding cases
 
 Copy a cached page from `.research/pages/` to `cases/summarize/<name>/source.md`
-plus a `case.json` with its `url`. For verify fail-cases, copy real notes,
-perturb figures by hand, and list every plant in `case.json` so the case
-stays auditable. Judge scores are model-dependent — re-run baselines after
+plus a `case.json` with its `url`, then generate the reference extraction
+(`facts.md`) by running the registry summarizer agent on `source.md` once — the
+summarize runner refuses to run a case without it. For verify fail-cases, copy
+real notes, perturb figures by hand, and list every plant in `case.json` so the
+case stays auditable. Judge scores are model-dependent — re-run baselines after
 changing the judge agent.
